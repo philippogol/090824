@@ -1,30 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Fetch Example</title>
+  <title>Fetch Example with Array Functions</title>
 </head>
 <body>
-  <button id="fetchButton">Fetch Data</button>
+  <h1>Data Manipulation with Array Functions</h1>
+  <button id="fetchDataButton">Fetch Data</button>
+  <div id="buttonContainer">
+    <button id="mapButton">Map Titles</button>
+    <button id="filterButton">Filter Long Posts</button>
+    <button id="reduceButton">Count Posts</button>
+    <button id="findButton">Find Post by ID</button>
+    <button id="findIndexButton">Find Index of Post by ID</button>
+    <button id="sortButton">Sort by Title (Ascending)</button>
+    <button id="spliceButton">Remove First Post</button>
+    <button id="resetButton">Reset Data</button>
+  </div>
   <div id="results"></div>
   <script>
-    const fetchButton = document.getElementById('fetchButton');
+    const fetchDataButton = document.getElementById('fetchDataButton');
+    const buttonContainer = document.getElementById('buttonContainer');
     const resultsDiv = document.getElementById('results');
+    let fetchedData; // Store fetched data globally
 
-    fetchButton.addEventListener('click', () => {
+    fetchDataButton.addEventListener('click', () => {
       fetch('https://jsonplaceholder.typicode.com/posts')
         .then(response => response.json())
         .then(data => {
-          resultsDiv.innerHTML = '';
-          data.forEach(post => {
-            const p = document.createElement('p');
-            p.textContent = `${post.title} - ${post.body}`;
-            resultsDiv.appendChild(p);
-          });
+          fetchedData = data;
+          resultsDiv.textContent = 'Data Fetched!';
         })
         .catch(error => {
           console.error('Error fetching data:', error);
           resultsDiv.innerHTML = 'An error occurred';
         });
+    });
+
+    buttonContainer.addEventListener('click', (event) => {
+      if (!fetchedData) {
+        alert('Please fetch data first!');
+        return;
+      }
+
+      const targetButton = event.target;
+      let result;
+
+      switch (targetButton.id) {
+        case 'mapButton':
+          result = fetchedData.map(post => post.title);
+          break;
+        case 'filterButton':
+          result = fetchedData.filter(post => post.body.length > 50);
+          break;
+        case 'reduceButton':
+          result = fetchedData.reduce((acc, post) => acc + 1, 0);
+          break;
+        case 'findButton':
+          const postId1 = prompt('Enter Post ID:');
+          result = fetchedData.find(post => post.id === parseInt(postId1));
+          break;
+        case 'findIndexButton':
+          const postId2 = prompt('Enter Post ID:');
+          result = fetchedData.findIndex(post => post.id === parseInt(postId2));
+          break;
+        case 'sortButton':
+          result = fetchedData.slice().sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case 'spliceButton':
+          fetchedData.splice(0, 1); // Remove first element
+          result = 'First post removed (data modified)';
+          break;
+        case 'resetButton':
+          fetchedData = null;
+          resultsDiv.textContent = '';
+          break;
+      }
+
+      if (result) {
+        resultsDiv.innerHTML = JSON.stringify(result, null, 2); // Pretty-print results
+      } else {
+        resultsDiv.textContent = 'No matching data found.';
+      }
     });
   </script>
 </body>
